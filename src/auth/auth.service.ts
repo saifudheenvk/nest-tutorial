@@ -5,6 +5,7 @@ import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AppLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class AuthService {
@@ -12,9 +13,13 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
-  ) {}
+    private logger: AppLogger,
+  ) {
+    this.logger.setContext(AuthService.name);
+  }
   async signin(dto: SignInDto) {
     // find user by email
+    this.logger.debug('Started signing in');
     const user = await this.prisma.user.findFirst({
       where: {
         email: dto.email,
